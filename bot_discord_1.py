@@ -1,8 +1,9 @@
+
+
 import discord
 import time
 from discord.ext import commands
 from commands import *
-
 
 bot = commands.Bot(command_prefix="?")      #----------- /!\ important /!\ -----------#
 server = discord.Server
@@ -34,62 +35,46 @@ async def hello(ctx, *arg):
 
 
 @bot.command(pass_context=True)
-async def info(ctx, utilisateur):
+async def info(ctx,*, utilisateur):
     message = ctx.message  #------------ récupère l'objet message -------- #
     user = message.server.get_member_named(utilisateur) #----------- trouve l'utilisateur -------- #
-    Member = user
-    nicknameUser = user.nick
-    print(user.default_avatar_url)
-    if user.avatar_url != '':
-        avatarUser = user.avatar_url
+    if user == None:
+        return await bot.say("L'utilisateur **"+utilisateur+"** n'existe pas.")
     else:
-        avatarUser = user.default_avatar_url
-
-    if Member.nick == None:
-        nicknameUser = ':x: **Aucun**'
-    else:
+        Member = user
         nicknameUser = user.nick
-    if Member.game == None:
-        jeuUser = 'Ne joue pas.'
-    else:
-        jeuUser = Member.game.name
-
-    if Member.status == Member.status.online:
-        StatusUser='**EN LIGNE**'
-
-    elif Member.status == Member.status.idle:
-        StatusUser ='**NE PAS DERANGE**'
-    else:
-            StatusUser = '**HORS LIGNE**'
-    embed = discord.Embed(color=Member.color)
-    embed.set_author(name=user.name +'#'+ user.discriminator,icon_url='https://image.noelshack.com/fichiers/2017/35/3/1504096952-graphicloads-flat-finance-person.png')
-    embed.set_thumbnail(url=avatarUser)
-    embed.add_field(name=":busts_in_silhouette: Nickname",value=nicknameUser,inline=True)
-    embed.add_field(name=":round_pushpin: Rôle", value=Member.top_role, inline=True)
-    embed.add_field(name=":video_game: Jeu", value=jeuUser, inline=True)
-    embed.add_field(name=":white_check_mark: Statut", value=StatusUser, inline=True)
-    return await bot.say(embed=embed)
-"""
-        if user.nick != None:
-            nicknameUser = user.nick
-
+        print(user.default_avatar_url)
+        if user.avatar_url != '':
+            avatarUser = user.avatar_url
         else:
-            nicknameUser = 'Aucun nickname.'
+            avatarUser = user.default_avatar_url
 
+        if Member.nick == None:
+            nicknameUser = ':x: **AUCUN**'
+        else:
+            nicknameUser = user.nick
         if Member.game == None:
-            Member.game = 'Ne joue pas.'
+            jeuUser = ':x: **AUCUN**'
+        else:
+            jeuUser = Member.game.name
 
         if Member.status == Member.status.online:
-            Member.status=':large_blue_circle: En ligne'
+            StatusUser='**EN LIGNE**'
 
         elif Member.status == Member.status.idle:
-            Member.status =':black_circle: Ne pas déranger'
-
+            StatusUser ='**NE PAS DERANGE**'
         else:
-
+            StatusUser = '**HORS LIGNE**'
+            embed = discord.Embed(color=Member.color)
+        embed.set_author(name=user.name +'#'+ user.discriminator,icon_url='https://image.noelshack.com/fichiers/2017/35/3/1504096952-graphicloads-flat-finance-person.png')
+        embed.set_thumbnail(url=avatarUser)
+        embed.add_field(name=":busts_in_silhouette: Nickname",value=nicknameUser,inline=True)
+        embed.add_field(name=":round_pushpin: Rôle", value=Member.top_role, inline=True)
+        embed.add_field(name=":video_game: Jeu", value=jeuUser, inline=True)
+        embed.add_field(name=":white_check_mark: Statut", value=StatusUser, inline=True)
 
         return await bot.say(embed=embed)
-"""
+
 
 @bot.command(pass_context=True)
 async def help():
