@@ -8,6 +8,7 @@ NomAllCommande = []
 descriptionAllCommandes = []
 
 bot = commands.Bot(command_prefix="?")      #----------- /!\ important /!\ -----------#
+server = discord.Server
 bot.remove_command('help')           #------------- Remove le ?help prédéfini -----------#
 
 @bot.event
@@ -36,7 +37,8 @@ descriptionCommande = "Répond par votre message."
 descriptionAllCommandes.append(descriptionCommande)
 
 @bot.command(pass_context=True)
-async def info(ctx, *utilisateur):
+async def info(ctx, utilisateur):
+    message = ctx.message
     user = message.server.get_member_named(utilisateur)
     Member = user
     try:
@@ -48,28 +50,28 @@ async def info(ctx, *utilisateur):
             nicknameUser = 'Aucun nickname.'
 
         if Member.game == None:
-            Member.game = 'Ne joue pas
+            Member.game = 'Ne joue pas'
 
         if Member.status == Member.status.online:
             Member.status=':large_blue_circle: En ligne'
 
         elif Member.status == Member.status.idle:
-            Member.status =':black_circle: Ne pas déranger '
+            Member.status =':black_circle: Ne pas déranger'
 
         else:
             Member.status =':red_circle: Déconnecté'
-            embed = discord.Embed(color=Member.color)
-            embed.set_author(name=utilisateur +'#'+ user.discriminator,icon_url='https://image.noelshack.com/fichiers/2017/35/1/1503939867-trisomy-21-down-syndrome-kennedi-beahn-presented-by-kraig-beahn2.jpg')
-            embed.set_thumbnail(url=user.avatar_url)
-            embed.add_field(name="Nickname",value=nicknameUser,inline=True)
-            embed.add_field(name="Rôle", value=Member.top_role, inline=True)
-            embed.add_field(name="Jeu", value=Member.game, inline=True)
-            embed.add_field(name="Statut", value=Member.status, inline=True)
-            
-            return await bot.say(embed=embed)
+        embed = discord.Embed(color=Member.color)
+        embed.set_author(name=utilisateur +'#'+ user.discriminator,icon_url='https://image.noelshack.com/fichiers/2017/35/1/1503939867-trisomy-21-down-syndrome-kennedi-beahn-presented-by-kraig-beahn2.jpg')
+        embed.set_thumbnail(url=user.avatar_url)
+        embed.add_field(name="Nickname",value=nicknameUser,inline=True)
+        embed.add_field(name="Rôle", value=Member.top_role, inline=True)
+        embed.add_field(name="Jeu", value=Member.game, inline=True)
+        embed.add_field(name="Statut", value=Member.status, inline=True)
 
-        except AttributeError:
-            return await bot.say('**Cet utilisateur n\'existe pas, vérifiez les majuscules.**')
+        return await bot.say(embed=embed)
+    except AttributeError:
+        return await bot.say('**Cet utilisateur n\'existe pas, vérifiez les majuscules.**')
+
 
 descriptionCommande = "Donne des informations concernant un membre du serveur discord."
 descriptionAllCommandes.append(descriptionCommande)
