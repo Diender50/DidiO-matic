@@ -50,7 +50,7 @@ async def info(ctx, utilisateur):
             nicknameUser = 'Aucun nickname.'
 
         if Member.game == None:
-            Member.game = 'Ne joue pas'
+            Member.game = 'Ne joue pas.'
 
         if Member.status == Member.status.online:
             Member.status=':large_blue_circle: En ligne'
