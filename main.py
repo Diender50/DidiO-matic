@@ -216,4 +216,4 @@ async def search(ctx, *, MusicName):
 
 
 
-bot.run('MzUwOTg4MDU5NjQwMjAxMjE2.DIMCow.7PxSQtuGb7t356bAY2D4gobB-60')  # ----------- /!\ important /!\ ------- #
+bot.run('TOKEN')  # ----------- /!\ important /!\ ------- #
