@@ -18,6 +18,9 @@ bot = commands.Bot(command_prefix="?")  # ----------- /!\ important /!\ --------
 server = discord.Server
 bot.remove_command('help')  # ------------- Remove le ?help prédéfini -----------#
 
+global player
+musics = []
+
 
 @bot.event
 async def on_ready():
@@ -157,6 +160,7 @@ async def leave(ctx):
 
 @yt.command(pass_context=True)
 async def play(ctx, *, yt_lien):
+    global musics
     message = ctx.message  # ------------ récupère l'objet message -------- #
     user = message.author  # ----------- trouve l'utilisateur -------- #
     if user.avatar_url != '':
@@ -167,20 +171,19 @@ async def play(ctx, *, yt_lien):
         if x.server == ctx.message.server:
             try:
                 player = await x.create_ytdl_player(yt_lien)
-                return player
+                musics.append(player)
             except youtube_dl.utils.DownloadError:
                 query = urllib.parse.quote(yt_lien)
                 url = "https://www.youtube.com/results?search_query=" + query
                 response = urlopen(url)
                 html = response.read()
-                soup = BeautifulSoup(html)
+                soup = BeautifulSoup(html, "html.parser")
 
                 for vid in soup.findAll(attrs={'class': 'yt-uix-tile-link'}, limit=1):
-                    if not vid['href'].startswith("https://googleads.g.doubleclick.net/‌​"):
+                    if not vid['href'].startswith("https://googleads​"):
                         yt_lien = 'https://www.youtube.com' + vid['href']
                         player = await x.create_ytdl_player(yt_lien)
-                        return player
-
+                        musics = player
             if player.duration > 1200:
                 return await bot.say("**" + player.title + "** ne peut être joué, il dépasse les 20 minutes.")
             else:
@@ -199,7 +202,8 @@ async def play(ctx, *, yt_lien):
 
 @yt.command(pass_context=True)
 async def queue(ctx):
-    if player.is_live:
+    global musics
+    if musics.is_live:
         return await bot.say("Une musique est en train d'être jouée")
     else:
         return await bot.say('Pas de musique jouée.')
