@@ -211,13 +211,15 @@ async def search(ctx, *, music_name):
     url = "https://www.youtube.com/results?search_query=" + query
     response = urlopen(url)
     html = response.read()
-    soup = BeautifulSoup(html)
+    soup = BeautifulSoup(html, "html.parser")
 
     for vid in soup.findAll(attrs={'class': 'yt-uix-tile-link'}, limit=1):
-        if not vid['href'].startswith("https://googleads.g.doubleclick.net/‌​"):
+        if not vid['href'].startswith("https://googleads"):
             return await bot.say(
                 'Voici le lien de la vidéo correspondant à **' + music_name + '**: https://www.youtube.com' +
                 vid['href'])
+        else:
+            return await bot.say("Aucune vidéo trouvée pour cet élément de recherche")
 
 
-bot.run('TOKEN')  # ----------- /!\ important /!\ ------- #
+bot.run('MzUwOTg4MDU5NjQwMjAxMjE2.DIMCow.7PxSQtuGb7t356bAY2D4gobB-60')  # ----------- /!\ important /!\ ------- #
