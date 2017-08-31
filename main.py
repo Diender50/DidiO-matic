@@ -1,31 +1,31 @@
-
+import datetime
+import random
+import time
+import urllib
+import urllib.parse
+from urllib.request import urlopen
 
 import discord
-import time
-from discord.ext import commands
-from commands import *
-import random
 import youtube_dl
-import datetime
-import urllib
 from bs4 import BeautifulSoup
-from urllib.request import urlopen
-import urllib.parse
-import re
+from discord.ext import commands
+
+from commands import *
 from youthumbnail import youthumbnail
 
-
 client = discord.Client()
-bot = commands.Bot(command_prefix="?")      #----------- /!\ important /!\ -----------#
+bot = commands.Bot(command_prefix="?")  # ----------- /!\ important /!\ -----------#
 server = discord.Server
-bot.remove_command('help')           #------------- Remove le ?help prédéfini -----------#
+bot.remove_command('help')  # ------------- Remove le ?help prédéfini -----------#
+
 
 @bot.event
 async def on_ready():
     print('Connecté à')
     print(bot.user.name)
     print(bot.user.id)
-    print('------')  #-------------
+    print('------')  # -------------
+
 
 @bot.event
 async def on_message(message):
@@ -33,94 +33,99 @@ async def on_message(message):
     content = message.content
     channel = message.channel
     date = time.strftime('%Y-%m-%d %H:%M:%S')
-    print('[', date, '] ', member, "in", channel , "-", content)   #------ logs console ------#
+    print('[', date, '] ', member, "in", channel, "-", content)  # ------ logs console ------#
 
-    await bot.process_commands(message) # ------ /!\ important sinon ?commandes pas fonctionnelles /!\ ---------- #
+    await bot.process_commands(message)  # ------ /!\ important sinon ?commandes pas fonctionnelles /!\ ---------- #
+
 
 @bot.command(pass_context=True)
 async def hello(ctx, *arg):
-
     msg = ' '.join(arg)
     return await bot.say(msg)
 
+
 @bot.command(pass_context=True)
-async def info(ctx,*, utilisateur):
-    message = ctx.message  #------------ récupère l'objet message -------- #
-    user = message.server.get_member_named(utilisateur) #----------- trouve l'utilisateur -------- #
-    if user == None:
-        return await bot.say("L'utilisateur **"+utilisateur+"** n'existe pas.")
+async def info(ctx, *, utilisateur):
+    message = ctx.message  # ------------ récupère l'objet message -------- #
+    user = message.server.get_member_named(utilisateur)  # ----------- trouve l'utilisateur -------- #
+    if user is None:
+        return await bot.say("L'utilisateur **" + utilisateur + "** n'existe pas.")
     else:
-        Member = user
-        nicknameUser = user.nick
+        member = user
+        nickname_user = user.nick
         print(user.default_avatar_url)
         if user.avatar_url != '':
-            avatarUser = user.avatar_url
+            avatar_user = user.avatar_url
         else:
-            avatarUser = user.default_avatar_url
+            avatar_user = user.default_avatar_url
 
-        if Member.nick == None:
-            nicknameUser = ':x: **AUCUN**'
+        if member.nick is None:
+            nickname_user = ':x: **AUCUN**'
         else:
-            nicknameUser = user.nick
-        if Member.game == None:
-            jeuUser = ':x: **AUCUN**'
+            nickname_user = user.nick
+        if member.game is None:
+            jeu_user = ':x: **AUCUN**'
         else:
-            jeuUser = Member.game.name
+            jeu_user = member.game.name
 
-        if Member.status == Member.status.online:
-            StatusUser='**EN LIGNE**'
+        if member.status == member.status.online:
+            status_user = '**EN LIGNE**'
 
-        elif Member.status == Member.status.idle:
-            StatusUser ='**NE PAS DERANGE**'
+        elif member.status == member.status.idle:
+            status_user = '**NE PAS DERANGE**'
         else:
-            StatusUser = '**HORS LIGNE**'
-        embed = discord.Embed(color=Member.color)
-        embed.set_author(name=user.name +'#'+ user.discriminator,icon_url='https://image.noelshack.com/fichiers/2017/35/3/1504096952-graphicloads-flat-finance-person.png')
-        embed.set_thumbnail(url=avatarUser)
-        embed.add_field(name=":busts_in_silhouette: Nickname",value=nicknameUser,inline=True)
-        embed.add_field(name=":round_pushpin: Rôle", value=Member.top_role, inline=True)
-        embed.add_field(name=":video_game: Jeu", value=jeuUser, inline=True)
-        embed.add_field(name=":white_check_mark: Statut", value=StatusUser, inline=True)
+            status_user = '**HORS LIGNE**'
+        embed = discord.Embed(color=member.color)
+        embed.set_author(name=user.name + '#' + user.discriminator,
+                         icon_url='https://image.noelshack.com/fichiers/2017/35/3/1504096952-graphicloads-flat-finance-person.png')
+        embed.set_thumbnail(url=avatar_user)
+        embed.add_field(name=":busts_in_silhouette: Nickname", value=nickname_user, inline=True)
+        embed.add_field(name=":round_pushpin: Rôle", value=member.top_role, inline=True)
+        embed.add_field(name=":video_game: Jeu", value=jeu_user, inline=True)
+        embed.add_field(name=":white_check_mark: Statut", value=status_user, inline=True)
 
         return await bot.say(embed=embed)
 
 
 @bot.command(pass_context=True)
 async def help():
-
-    #------------------- Embed ---------------#
+    # ------------------- Embed ---------------#
 
     embed = discord.Embed(color=0x2ecc71)
-    embed.set_author(name="LES COMMANDES DE DIDIO\'MATIC", icon_url='https://image.noelshack.com/fichiers/2017/35/1/1503939867-trisomy-21-down-syndrome-kennedi-beahn-presented-by-kraig-beahn2.jpg')
+    embed.set_author(name="LES COMMANDES DE DIDIO\'MATIC",
+                     icon_url='https://image.noelshack.com/fichiers/2017/35/1/1503939867-trisomy-21-down-syndrome-kennedi-beahn-presented-by-kraig-beahn2.jpg')
     embed.set_thumbnail(url='http://icons.iconarchive.com/icons/graphicloads/100-flat/256/settings-3-icon.png')
 
-    #--------------- affiche 1 field pour chaque commande ---------------#
+    # --------------- affiche 1 field pour chaque commande ---------------#
     i = 0
     while i < len(NomAllCommande):
         key = NomAllCommande[i]
         value = descriptionAllCommandes[i]
-        embed.add_field(name="?" + key + "  " + subCommande[i],value=value, inline=True)
+        embed.add_field(name="?" + key + "  " + subCommande[i], value=value, inline=True)
         i = i + 1
 
-
-
     return await bot.say(embed=embed)
+
+
 @bot.command(pass_context=True)
 async def alain():
     return await bot.say("J'ai faim plus que **Alain**.\n https://www.youtube.com/watch?v=BuMCZHyGwXw")
 
+
 @bot.command(pass_context=True)
 async def meme(ctx):
-    message = ctx.message  #------------ récupère l'objet message -------- #
-    memeRandom = str(random.randint(0, 1020))
-    imageMeme = "C:\\Users\\samuel\\Documents\\GitHub\\DidiO-matic\\Meme pack by LiquidIllusion\\" + memeRandom + '.jpg'
-    return await bot.send_file(message.channel, fp=imageMeme, content="**NO GOD PLEASE**")
+    message = ctx.message  # ------------ récupère l'objet message -------- #
+    meme_random = str(random.randint(0, 1020))
+    image_meme = "C:\\Users\\samuel\\Documents\\GitHub\\DidiO-matic\\Meme pack by LiquidIllusion\\" + meme_random + '.jpg'
+    return await bot.send_file(message.channel, fp=image_meme, content="**NO GOD PLEASE**")
 
-#----------- commandes bot musiques -------------- #
+
+# ----------- commandes bot musiques -------------- #
 @bot.group(pass_context=True)
 async def yt(ctx):
     if ctx.invoked_subcommand is None:
         await bot.say('Commande **yt** invalide. Faites **?help** pour plus d\'informations sur cette commande.')
+
 
 @yt.command(pass_context=True)
 async def join(ctx):
@@ -135,85 +140,84 @@ async def join(ctx):
         return await bot.say('Vous n\'êtes connecté à aucun **channel vocal**.')
     except discord.ClientException:
         channel = voice_channel.name
-        return await bot.say('Déjà connecté au channel vocal **#'+ channel +'**')
+        return await bot.say('Déjà connecté au channel vocal **#' + channel + '**')
 
-@yt.command(pass_context = True)
+
+@yt.command(pass_context=True)
 async def leave(ctx):
     for x in bot.voice_clients:
-        if(x.server == ctx.message.server):
+        if x.server == ctx.message.server:
             await bot.change_presence(game=None)
             await bot.change_presence(game=None, status='online', afk=False)
 
             return await x.disconnect()
 
-
     return await bot.say("Je ne suis dans aucun **channel vocal**.")
 
-@yt.command(pass_context = True)
-async def play(ctx, *,ytLien):
-    message = ctx.message  #------------ récupère l'objet message -------- #
-    user = message.author #----------- trouve l'utilisateur -------- #
+
+@yt.command(pass_context=True)
+async def play(ctx, *, yt_lien):
+    message = ctx.message  # ------------ récupère l'objet message -------- #
+    user = message.author  # ----------- trouve l'utilisateur -------- #
     if user.avatar_url != '':
-        avatarUser = user.avatar_url
+        avatar_user = user.avatar_url
     else:
-        avatarUser = user.default_avatar_url
+        avatar_user = user.default_avatar_url
     for x in bot.voice_clients:
-        if(x.server == ctx.message.server):
+        if x.server == ctx.message.server:
             try:
-                 player = await x.create_ytdl_player(ytLien)
-                 return player
+                player = await x.create_ytdl_player(yt_lien)
+                return player
             except youtube_dl.utils.DownloadError:
-                query = urllib.parse.quote(ytLien)
+                query = urllib.parse.quote(yt_lien)
                 url = "https://www.youtube.com/results?search_query=" + query
                 response = urlopen(url)
                 html = response.read()
                 soup = BeautifulSoup(html)
 
-                for vid in soup.findAll(attrs={'class':'yt-uix-tile-link'}, limit=1):
+                for vid in soup.findAll(attrs={'class': 'yt-uix-tile-link'}, limit=1):
                     if not vid['href'].startswith("https://googleads.g.doubleclick.net/‌​"):
-                        ytLien = 'https://www.youtube.com' + vid['href']
-                        player = await x.create_ytdl_player(ytLien)
+                        yt_lien = 'https://www.youtube.com' + vid['href']
+                        player = await x.create_ytdl_player(yt_lien)
                         return player
 
             if player.duration > 1200:
-                return await bot.say("**"+player.title+"** ne peut être joué, il dépasse les 20 minutes.")
+                return await bot.say("**" + player.title + "** ne peut être joué, il dépasse les 20 minutes.")
             else:
                 player.start()
-                MusicIconeUrl = youthumbnail(player.url, 'l')
-                musicTime = str(datetime.timedelta(seconds=player.duration))
-                embed=discord.Embed(title=player.title, color=0xb71402)
-                embed.set_thumbnail(url=MusicIconeUrl)
-                embed.set_author(name="En lecture", url=player.url, icon_url=avatarUser)
+                music_icone_url = youthumbnail(player.url, 'l')
+                music_time = str(datetime.timedelta(seconds=player.duration))
+                embed = discord.Embed(title=player.title, color=0xb71402)
+                embed.set_thumbnail(url=music_icone_url)
+                embed.set_author(name="En lecture", url=player.url, icon_url=avatar_user)
                 embed.add_field(name="Artiste", value=player.uploader, inline=True)
-                embed.add_field(name="Durée", value=musicTime, inline=True)
+                embed.add_field(name="Durée", value=music_time, inline=True)
                 embed.set_footer(text="par DiDiO'matic ")
                 await bot.change_presence(game=discord.Game(name=player.title))
                 await bot.say(embed=embed)
 
 
-
 @yt.command(pass_context=True)
 async def queue(ctx):
-
-    if player.is_live == True:
+    if player.is_live:
         return await bot.say("Une musique est en train d'être jouée")
     else:
         return await bot.say('Pas de musique jouée.')
 
+
 @yt.command(pass_context=True)
-async def search(ctx, *, MusicName):
-    query = urllib.parse.quote(MusicName)
+async def search(ctx, *, music_name):
+    query = urllib.parse.quote(music_name)
     url = "https://www.youtube.com/results?search_query=" + query
     response = urlopen(url)
     html = response.read()
     soup = BeautifulSoup(html)
 
-    for vid in soup.findAll(attrs={'class':'yt-uix-tile-link'}, limit=1):
+    for vid in soup.findAll(attrs={'class': 'yt-uix-tile-link'}, limit=1):
         if not vid['href'].startswith("https://googleads.g.doubleclick.net/‌​"):
-            return await bot.say('Voici le lien de la vidéo correspondant à **' + MusicName + '**: https://www.youtube.com' + vid['href'])
-
-
-
+            return await bot.say(
+                'Voici le lien de la vidéo correspondant à **' + music_name + '**: https://www.youtube.com' +
+                vid['href'])
 
 
 bot.run('TOKEN')  # ----------- /!\ important /!\ ------- #
