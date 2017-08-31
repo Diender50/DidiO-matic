@@ -14,6 +14,7 @@ import urllib.parse
 import re
 from youthumbnail import youthumbnail
 
+
 client = discord.Client()
 bot = commands.Bot(command_prefix="?")      #----------- /!\ important /!\ -----------#
 server = discord.Server
@@ -147,53 +148,57 @@ async def leave(ctx):
 
 
     return await bot.say("Je ne suis dans aucun **channel vocal**.")
-musicIsPlaying = False
+
 @yt.command(pass_context = True)
 async def play(ctx, *,ytLien):
-    try:
-        return print(player.name)
-    except NameError:
-        message = ctx.message  #------------ récupère l'objet message -------- #
-        user = message.author #----------- trouve l'utilisateur -------- #
-        if user.avatar_url != '':
-            avatarUser = user.avatar_url
-        else:
-            avatarUser = user.default_avatar_url
-        for x in bot.voice_clients:
-            if(x.server == ctx.message.server):
-                try:
-                    player = await x.create_ytdl_player(ytLien)
-                except youtube_dl.utils.DownloadError:
-                    query = urllib.parse.quote(ytLien)
-                    url = "https://www.youtube.com/results?search_query=" + query
-                    response = urlopen(url)
-                    html = response.read()
-                    soup = BeautifulSoup(html)
+    message = ctx.message  #------------ récupère l'objet message -------- #
+    user = message.author #----------- trouve l'utilisateur -------- #
+    if user.avatar_url != '':
+        avatarUser = user.avatar_url
+    else:
+        avatarUser = user.default_avatar_url
+    for x in bot.voice_clients:
+        if(x.server == ctx.message.server):
+            try:
+                 player = await x.create_ytdl_player(ytLien)
+                 return player
+            except youtube_dl.utils.DownloadError:
+                query = urllib.parse.quote(ytLien)
+                url = "https://www.youtube.com/results?search_query=" + query
+                response = urlopen(url)
+                html = response.read()
+                soup = BeautifulSoup(html)
 
-                    for vid in soup.findAll(attrs={'class':'yt-uix-tile-link'}, limit=1):
-                        if not vid['href'].startswith("https://googleads.g.doubleclick.net/‌​"):
-                            ytLien = 'https://www.youtube.com' + vid['href']
-                            player = await x.create_ytdl_player(ytLien)
+                for vid in soup.findAll(attrs={'class':'yt-uix-tile-link'}, limit=1):
+                    if not vid['href'].startswith("https://googleads.g.doubleclick.net/‌​"):
+                        ytLien = 'https://www.youtube.com' + vid['href']
+                        player = await x.create_ytdl_player(ytLien)
+                        return player
 
-                if player.duration > 1200:
-                    return await bot.say("**"+player.title+"** ne peut être joué, il dépasse les 20 minutes.")
-                else:
-                    player.start()
-                    MusicIconeUrl = youthumbnail(player.url, 'l')
-                    musicTime = str(datetime.timedelta(seconds=player.duration))
-                    embed=discord.Embed(title=player.title, color=0xb71402)
-                    embed.set_thumbnail(url=MusicIconeUrl)
-                    embed.set_author(name="En lecture", url=player.url, icon_url=avatarUser)
-                    embed.add_field(name="Artiste", value=player.uploader, inline=True)
-                    embed.add_field(name="Durée", value=musicTime, inline=True)
-                    embed.set_footer(text="par DiDiO'matic ")
-                    await bot.say(embed=embed)
-                    await bot.change_presence(game=discord.Game(name=player.title))
-                    musicIsPlaying = False
+            if player.duration > 1200:
+                return await bot.say("**"+player.title+"** ne peut être joué, il dépasse les 20 minutes.")
+            else:
+                player.start()
+                MusicIconeUrl = youthumbnail(player.url, 'l')
+                musicTime = str(datetime.timedelta(seconds=player.duration))
+                embed=discord.Embed(title=player.title, color=0xb71402)
+                embed.set_thumbnail(url=MusicIconeUrl)
+                embed.set_author(name="En lecture", url=player.url, icon_url=avatarUser)
+                embed.add_field(name="Artiste", value=player.uploader, inline=True)
+                embed.add_field(name="Durée", value=musicTime, inline=True)
+                embed.set_footer(text="par DiDiO'matic ")
+                await bot.change_presence(game=discord.Game(name=player.title))
+                await bot.say(embed=embed)
 
 
 
+@yt.command(pass_context=True)
+async def queue(ctx):
 
+    if player.is_live == True:
+        return await bot.say("Une musique est en train d'être jouée")
+    else:
+        return await bot.say('Pas de musique jouée.')
 
 @yt.command(pass_context=True)
 async def search(ctx, *, MusicName):
